@@ -1,6 +1,8 @@
 # Author: Will
 # Program: MinecraftServerScanner
 
+import os
+import time
 import math
 import socket
 import threading
@@ -15,6 +17,21 @@ num_ips = 0
 work_per_thread = 0
 timeout = 20
 
+global servers_found
+
+
+def cls():
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+
+def display_statistics():
+    while len(ip_list) > 0:
+        print(f"IPs left to scan: {len(ip_list)}")
+        print(f"{math.floor(len(ip_list)/num_ips)}% Done")
+        print(f"Servers Found: {servers_found}")
+        time.sleep(5)
+        cls()
+
 
 # Read in a list of IPs from a text file into a list
 def read_ips():
@@ -28,6 +45,7 @@ def read_ips():
 def clean_ips():
     try:
         f = open("ip-hit.txt", "r")
+        print("Reading IPs to be ignored (this may take a while)")
         skip = 0
         for line in f:
             if line.rstrip() in ip_list:
@@ -52,13 +70,15 @@ def cycle(start, end):
     count = 0
     for ip in ip_list[start:end]:
         try:
-            # Show which IP is about to be scanned
-            print(f"Scanning: {ip} [{threading.get_ident()}]\n", end="")
+            # Increment count for scanned IPs
             count += 1
+
+            # Remove IP from list for statistics
+            ip_list.remove(ip)
 
             # Query a server for info
             server = query(ip)
-            print(f"{server}", end="")
+            servers_found += 1
 
             # If server is found write its information to file
             f = open("server-list.txt", "a")
@@ -95,6 +115,7 @@ if __name__ == '__main__':
     num_threads = int(num_threads)
 
     num_ips = len(ip_list)
+    servers_found = 0
 
     # Calculate how many IPs each thread should scan
     work_per_thread = math.floor(num_ips / num_threads)
@@ -114,6 +135,8 @@ if __name__ == '__main__':
             target=cycle, args=(work_per_thread * i, work_per_thread * i + work_per_thread,))
         threads.append(thread)
         thread.start()
+
+    thread = threading.Thread(target=display_statistics).start()
 
     # If number of IPs / number of threads has leftover work main thread takes care of it
     if leftover > 0:

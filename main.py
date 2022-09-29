@@ -135,11 +135,12 @@ def cycle(start, end):
 
 
 if __name__ == '__main__':
-    read_ips()
-    clean_ips()
 
     # Clear screen
     cls()
+
+    read_ips()
+    clean_ips()
 
     print(f"Ips to be scanned: {len(ip_list)}")
 

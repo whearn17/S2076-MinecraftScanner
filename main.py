@@ -12,12 +12,16 @@ from mcstatus import JavaServer
 PORT = 25565
 ip_list = []
 threads = []
-num_threads = 0
 num_ips = 0
+num_threads = 0
 work_per_thread = 0
 timeout = 20
 
 global servers_found
+servers_found = 0
+
+global servers_scanned
+servers_scanned = 0
 
 
 def cls():
@@ -26,7 +30,8 @@ def cls():
 
 def display_statistics():
     while len(ip_list) > 0:
-        print(f"{math.floor((num_ips/len(ip_list)) * 10)}% Done")
+        percent_done = servers_scanned / num_ips
+        print(f"{percent_done}% Done")
         print(f"Servers Found: {servers_found}")
         time.sleep(10)
         cls()
@@ -70,14 +75,16 @@ def cycle(start, end):
 
     # Keep track of servers found
     global servers_found
+    global servers_scanned
 
     for ip in ip_list[start:end]:
         try:
             # Increment count for scanned IPs
             count += 1
+            servers_scanned += 1
 
             # Remove IP from list for statistics
-            ip_list.remove(ip)
+            # ip_list.remove(ip)
 
             # Query a server for info
             server = query(ip)
@@ -118,7 +125,6 @@ if __name__ == '__main__':
     num_threads = int(num_threads)
 
     num_ips = len(ip_list)
-    servers_found = 0
 
     # Calculate how many IPs each thread should scan
     work_per_thread = math.floor(num_ips / num_threads)
@@ -140,6 +146,7 @@ if __name__ == '__main__':
         thread.start()
 
     thread = threading.Thread(target=display_statistics).start()
+    threads.append(thread)
 
     # If number of IPs / number of threads has leftover work main thread takes care of it
     if leftover > 0:

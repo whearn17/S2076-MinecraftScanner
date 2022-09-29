@@ -49,6 +49,7 @@ def read_ips():
 # Read a list of IPs already found and remove from list
 def clean_ips():
     try:
+        # Read previously found IPs
         f = open("ip-hit.txt", "r")
         print("Reading IPs to be ignored (this may take a while)")
         skip = 0
@@ -83,6 +84,8 @@ def cycle(start, end):
             # Increment count for scanned IPs
             count += 1
             servers_scanned += 1
+
+            # Test
             f = open("scanning.txt", "a")
             f.write(ip + "\n")
             f.close()
@@ -122,9 +125,11 @@ if __name__ == '__main__':
     read_ips()
     clean_ips()
 
+    # Set number of threads
     num_threads = input("Enter number of threads: ")
     num_threads = int(num_threads)
 
+    # Get total number of IPs
     num_ips = len(ip_list)
 
     # Calculate how many IPs each thread should scan
@@ -132,6 +137,7 @@ if __name__ == '__main__':
     print(f"Work per thread -> {work_per_thread}")
     leftover = (num_ips - (work_per_thread * num_threads))
 
+    # Logging info for the start of scan
     file = open("log.txt", "a")
     file.write(f"[INFO] IPs to be scanned: {num_ips}\n")
     file.write(f"[INFO] Number of threads selected: {num_threads}\n")
@@ -163,6 +169,7 @@ if __name__ == '__main__':
             file.write(f"[ERROR] {Exception}")
             file.close()
 
+    # End of scan
     file = open("log.txt", "a")
     file.write("-------------------------------------------------------------------------\n\n")
     file.close()

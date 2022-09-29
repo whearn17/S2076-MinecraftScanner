@@ -87,9 +87,6 @@ def cycle(start, end):
             f.write(ip + "\n")
             f.close()
 
-            # Remove IP from list for statistics
-            # ip_list.remove(ip)
-
             # Query a server for info
             server = query(ip)
             servers_found += 1

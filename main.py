@@ -84,7 +84,7 @@ def cycle(start, end):
             count += 1
             servers_scanned += 1
             f = open("scanning.txt", "a")
-            f.write(f"Scanning: {ip}")
+            f.write(ip + "\n")
             f.close()
 
             # Remove IP from list for statistics
@@ -95,7 +95,7 @@ def cycle(start, end):
             servers_found += 1
 
             # If server is found write its information to file
-            f = open("server-list.txt", "a")
+            f = open("server-list.txt", "a", encoding="utf-8")
             f.write(server)
             f.close()
 

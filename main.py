@@ -26,10 +26,9 @@ def cls():
 
 def display_statistics():
     while len(ip_list) > 0:
-        print(f"IPs left to scan: {len(ip_list)}")
-        print(f"{math.floor(len(ip_list)/num_ips)}% Done")
+        print(f"{math.floor((num_ips/len(ip_list)) * 10)}% Done")
         print(f"Servers Found: {servers_found}")
-        time.sleep(5)
+        time.sleep(10)
         cls()
 
 
@@ -68,6 +67,10 @@ def query(host):
 def cycle(start, end):
     # Keep track of number of IPs scanned
     count = 0
+
+    # Keep track of servers found
+    global servers_found
+
     for ip in ip_list[start:end]:
         try:
             # Increment count for scanned IPs

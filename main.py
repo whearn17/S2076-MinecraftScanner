@@ -159,7 +159,12 @@ if __name__ == '__main__':
 
     # Wait for threads to finish
     for thread in threads:
-        thread.join()
+        try:
+            thread.join()
+        except Exception as e:
+            file = open("log.txt", "a")
+            file.write(f"[ERROR] {Exception}")
+            file.close()
 
     file = open("log.txt", "a")
     file.write("-------------------------------------------------------------------------\n\n")

@@ -138,6 +138,9 @@ if __name__ == '__main__':
     read_ips()
     clean_ips()
 
+    # Clear screen
+    cls()
+
     print(f"Ips to be scanned: {len(ip_list)}")
 
     # Set number of threads

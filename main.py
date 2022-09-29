@@ -42,12 +42,12 @@ def log(filename, message):
 
 def display_statistics():
     while servers_scanned < num_ips:
+        cls()
         percent_done = math.floor((servers_scanned / num_ips) * 100)
         print(f"{percent_done}% Done")
         print(f"Servers Found: {servers_found}")
         print(f"Servers Scanned: {servers_scanned}")
         time.sleep(3)
-        cls()
 
 
 # Read in a list of IPs from a text file into a list
@@ -131,6 +131,9 @@ if __name__ == '__main__':
     num_threads = input("Enter number of threads: ")
     num_threads = int(num_threads)
 
+    # Clear screen
+    cls()
+
     # Get total number of IPs
     num_ips = len(ip_list)
 
@@ -161,12 +164,7 @@ if __name__ == '__main__':
 
     # Wait for threads to finish
     for thread in threads:
-        try:
-            thread.join()
-        except Exception as e:
-            file = open("log.txt", "a")
-            file.write(f"[ERROR] {Exception}")
-            file.close()
+        thread.join()
 
     # End of scan
     log(log_file, "-------------------------------------------------------------------------\n\n")

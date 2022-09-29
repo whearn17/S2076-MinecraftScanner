@@ -17,6 +17,12 @@ num_threads = 0
 work_per_thread = 0
 timeout = 20
 
+ip_read_file = ""
+ip_hit_file = ""
+server_file = ""
+log_file = ""
+
+
 global servers_found
 servers_found = 0
 
@@ -26,6 +32,12 @@ servers_scanned = 0
 
 def cls():
     os.system('cls' if os.name == 'nt' else 'clear')
+
+
+def log(filename, message):
+    f = open(filename, "a", encoding="utf-8")
+    f.write(message)
+    f.close()
 
 
 def display_statistics():
@@ -49,7 +61,6 @@ def read_ips():
 # Read a list of IPs already found and remove from list
 def clean_ips():
     try:
-        # Read previously found IPs
         f = open("ip-hit.txt", "r")
         print("Reading IPs to be ignored (this may take a while)")
         skip = 0
@@ -85,27 +96,19 @@ def cycle(start, end):
             count += 1
             servers_scanned += 1
 
-            # Test
-            f = open("scanning.txt", "a")
-            f.write(ip + "\n")
-            f.close()
-
             # Query a server for info
             server = query(ip)
             servers_found += 1
 
             # If server is found write its information to file
-            f = open("server-list.txt", "a", encoding="utf-8")
-            f.write(server)
-            f.close()
+            log(server_file, server)
 
             """ If server is found write its IP to a file
                 This is so I can scan with the same list
                 multiple times and avoid duplicates
             """
-            f = open("ip-hit.txt", "a")
-            f.write(f"{ip}\n")
-            f.close()
+            log(ip_hit_file, f"{ip}\n")
+
         except socket.timeout:
             pass
         except ConnectionResetError:
@@ -114,11 +117,10 @@ def cycle(start, end):
             pass
         except OSError:
             pass
+
     # Threads log to a file when they are done
-    f = open("log.txt", "a")
-    f.write(f"[INFO] {threading.get_ident()} -> done ({datetime.datetime.now()})\n")
-    f.write(f"[INFO] IPs scanned: {count}\n\n")
-    f.close()
+    log(log_file, f"[INFO] {threading.get_ident()} -> done ({datetime.datetime.now()})\n"
+        f"[INFO] IPs scanned: {count}\n\n")
 
 
 if __name__ == '__main__':
@@ -134,16 +136,13 @@ if __name__ == '__main__':
 
     # Calculate how many IPs each thread should scan
     work_per_thread = math.floor(num_ips / num_threads)
-    print(f"Work per thread -> {work_per_thread}")
     leftover = (num_ips - (work_per_thread * num_threads))
 
     # Logging info for the start of scan
-    file = open("log.txt", "a")
-    file.write(f"[INFO] IPs to be scanned: {num_ips}\n")
-    file.write(f"[INFO] Number of threads selected: {num_threads}\n")
-    file.write(f"[INFO] Work per thread: {work_per_thread}\n")
-    file.write(f"[INFO] Leftover work for main thread: {leftover}\n\n")
-    file.close()
+    log(log_file, f"[INFO] IPs to be scanned: {num_ips}\n"
+        f"[INFO] Number of threads selected: {num_threads}\n"
+        f"[INFO] Work per thread: {work_per_thread}\n"
+        f"[INFO] Leftover work for main thread: {leftover}\n\n")
 
     # Create each thread and assign a chunk of work to it
     for i in range(num_threads):
@@ -170,6 +169,4 @@ if __name__ == '__main__':
             file.close()
 
     # End of scan
-    file = open("log.txt", "a")
-    file.write("-------------------------------------------------------------------------\n\n")
-    file.close()
+    log(log_file, "-------------------------------------------------------------------------\n\n")

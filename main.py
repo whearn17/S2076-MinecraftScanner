@@ -15,12 +15,12 @@ threads = []
 num_ips = 0
 num_threads = 0
 work_per_thread = 0
-timeout = 20
+timeout = 10
 
-ip_read_file = ""
-ip_hit_file = ""
-server_file = ""
-log_file = ""
+ip_read_file = "potential_servers.txt"
+ip_hit_file = "ip-hit.txt"
+log_file = "log.txt"
+server_file = "server-list.txt"
 
 
 global servers_found
@@ -52,7 +52,7 @@ def display_statistics():
 
 # Read in a list of IPs from a text file into a list
 def read_ips():
-    with open("potential_servers.txt", "r") as f:
+    with open(ip_read_file, "r") as f:
         for line in f:
             ip_list.append(line.rstrip())
     f.close()
@@ -61,7 +61,7 @@ def read_ips():
 # Read a list of IPs already found and remove from list
 def clean_ips():
     try:
-        f = open("ip-hit.txt", "r")
+        f = open(ip_hit_file, "r")
         print("Reading IPs to be ignored (this may take a while)")
         skip = 0
         for line in f:

@@ -185,11 +185,14 @@ if __name__ == '__main__':
     # End scan timing
     time_end = time.time()
 
+    # Calculate scan timing
+    total_time = math.floor(time_end - time_start)
+
     # End of scan
     log(log_file, "-------------------------------------------------------------------------\n\n")
 
     cls()
-    print(f"MinecraftServerScanner -> Done\nElapsed Time: {time_end - time_start}\n"
+    print(f"MinecraftServerScanner -> Done\nElapsed Time: {total_time} seconds\n"
           f"Servers Found: {servers_found}\nServers Scanned: {servers_scanned}\n"
           f"--------------------------------------------\n\n")
 

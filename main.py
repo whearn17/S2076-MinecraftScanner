@@ -22,12 +22,18 @@ ip_hit_file = "ip-hit.txt"
 log_file = "log.txt"
 server_file = "server-list.txt"
 
+server_list = []
 
-global servers_found
 servers_found = 0
-
-global servers_scanned
 servers_scanned = 0
+
+file_lock = threading.Lock()
+server_list_lock = threading.Lock()
+
+
+def add_server(addr):
+    with server_list_lock:
+        server_list.append(addr)
 
 
 def cls():
@@ -35,9 +41,10 @@ def cls():
 
 
 def log(filename, message):
-    f = open(filename, "a", encoding="utf-8")
-    f.write(message)
-    f.close()
+    with file_lock:
+        f = open(filename, "a", encoding="utf-8")
+        f.write(message)
+        f.close()
 
 
 def display_statistics():
@@ -96,8 +103,12 @@ def cycle(start, end):
             count += 1
             servers_scanned += 1
 
+            # Visualize IPs Scanned
+            log("scannning.txt", f"{ip}\n")
+
             # Query a server for info
             server = query(ip)
+            add_server(server)
             servers_found += 1
 
             # If server is found write its information to file
@@ -127,6 +138,8 @@ if __name__ == '__main__':
     read_ips()
     clean_ips()
 
+    print(f"Ips to be scanned: {len(ip_list)}")
+
     # Set number of threads
     num_threads = input("Enter number of threads: ")
     num_threads = int(num_threads)
@@ -147,6 +160,9 @@ if __name__ == '__main__':
         f"[INFO] Work per thread: {work_per_thread}\n"
         f"[INFO] Leftover work for main thread: {leftover}\n\n")
 
+    # Begin scan timing
+    time_start = time.time()
+
     # Create each thread and assign a chunk of work to it
     for i in range(num_threads):
         thread = threading.Thread(
@@ -166,5 +182,16 @@ if __name__ == '__main__':
     for thread in threads:
         thread.join()
 
+    # End scan timing
+    time_end = time.time()
+
     # End of scan
     log(log_file, "-------------------------------------------------------------------------\n\n")
+
+    cls()
+    print(f"MinecraftServerScanner -> Done\nElapsed Time: {time_end - time_start}\n"
+          f"Servers Found: {servers_found}\nServers Scanned: {servers_scanned}\n"
+          f"--------------------------------------------\n\n")
+
+    for item in server_list:
+        print(item)

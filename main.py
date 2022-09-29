@@ -29,11 +29,12 @@ def cls():
 
 
 def display_statistics():
-    while len(ip_list) > 0:
-        percent_done = servers_scanned / num_ips
+    while servers_scanned < num_ips:
+        percent_done = math.floor((servers_scanned / num_ips) * 100)
         print(f"{percent_done}% Done")
         print(f"Servers Found: {servers_found}")
-        time.sleep(10)
+        print(f"Servers Scanned: {servers_scanned}")
+        time.sleep(3)
         cls()
 
 
@@ -82,6 +83,9 @@ def cycle(start, end):
             # Increment count for scanned IPs
             count += 1
             servers_scanned += 1
+            f = open("scanning.txt", "a")
+            f.write(f"Scanning: {ip}")
+            f.close()
 
             # Remove IP from list for statistics
             # ip_list.remove(ip)
@@ -145,8 +149,9 @@ if __name__ == '__main__':
         threads.append(thread)
         thread.start()
 
-    thread = threading.Thread(target=display_statistics).start()
+    thread = threading.Thread(target=display_statistics)
     threads.append(thread)
+    thread.start()
 
     # If number of IPs / number of threads has leftover work main thread takes care of it
     if leftover > 0:

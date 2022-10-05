@@ -5,6 +5,7 @@ import os
 import time
 import math
 import socket
+import argparse
 import traceback
 import threading
 import dns.resolver
@@ -18,10 +19,10 @@ num_threads = 0
 work_per_thread = 0
 timeout = 10
 
-ip_read_file = "potential_servers.txt"
-ip_hit_file = "ip-hit.txt"
+ip_read_file = ""
+ip_exclude_file = ""
 log_file = "log.txt"
-server_file = "server-list.txt"
+server_file = ""
 
 server_list = []
 
@@ -30,6 +31,67 @@ servers_scanned = 0
 
 file_lock = threading.Lock()
 server_list_lock = threading.Lock()
+servers_scanned_lock = threading.Lock()
+
+
+def init_threads():
+    # Create each thread and assign a chunk of work to it
+    for i in range(num_threads):
+        thread = threading.Thread(
+            target=cycle, args=(work_per_thread * i, work_per_thread * i + work_per_thread,))
+        threads.append(thread)
+        thread.start()
+
+    thread = threading.Thread(target=display_statistics)
+    threads.append(thread)
+    thread.start()
+
+
+def parse_args():
+    global ip_read_file
+    global ip_exclude_file
+    global server_file
+    global num_threads
+
+    args = init_args()
+
+    # Input IP file argument
+    if args.input_file:
+        ip_read_file = args.input_file
+        read_ips()
+
+    # Output scan to file argument
+    if args.output_file:
+        server_file = args.output_file
+
+    # Ignore IPs from file argument
+    if args.exclude_file:
+        ip_exclude_file = args.exclude_file
+        clean_ips()
+
+    # Number of threads argument
+    if args.threads:
+        num_threads = args.threads
+    else:
+        num_threads = 100
+
+
+def init_args():
+    parser = argparse.ArgumentParser(prog="MinecraftServerScanner.py")
+
+    # Input IP file argument
+    parser.add_argument("-i", "--input-file", type=str, help="Scan a list of IPs from a file", dest="input_file")
+
+    # Output scan to file argument
+    parser.add_argument("-o", "--output-file", type=str, help="Output scan to a file", dest="output_file")
+
+    # Ignore IPs from file argument
+    parser.add_argument("-e", "--exclude-file", type=str, help="Exclude a list of IPs from a file", dest="exclude_file")
+
+    # Number of threads argument
+    parser.add_argument("-t", "--threads", type=int, help="Number of threads for scanning", dest="threads")
+
+    return parser.parse_args()
 
 
 def add_server(addr):
@@ -42,6 +104,8 @@ def cls():
 
 
 def log(filename, message):
+    if not filename:
+        return
     with file_lock:
         f = open(filename, "a", encoding="utf-8")
         f.write(message)
@@ -69,7 +133,7 @@ def read_ips():
 # Read a list of IPs already found and remove from list
 def clean_ips():
     try:
-        f = open(ip_hit_file, "r")
+        f = open(ip_exclude_file, "r")
         print("Reading IPs to be ignored (this may take a while)")
         skip = 0
         for line in f:
@@ -91,7 +155,6 @@ def query(host):
 
 # Cycle through the portion of IP list that belongs to current thread
 def cycle(start, end):
-
     # Keep track of servers found
     global servers_found
     global servers_scanned
@@ -104,15 +167,6 @@ def cycle(start, end):
             add_server(server)
             servers_found += 1
 
-            # If server is found write its information to file
-            log(server_file, server)
-
-            """ If server is found write its IP to a file
-                This is so I can scan with the same list
-                multiple times and avoid duplicates
-            """
-            log(ip_hit_file, f"{ip}\n")
-
         except socket.timeout:
             pass
         except ConnectionResetError:
@@ -124,12 +178,13 @@ def cycle(start, end):
         except dns.resolver.LifetimeTimeout:
             pass
         except Exception as e:
-            log("fail.txt", f"{traceback.format_exc()}\nFailed while executing: {ip}\n"
-                            f"Thread ID: {threading.get_ident()}\n\n")
+            log("fail.txt", f"[ERROR] An unkown error occured... Scanning will continue\n\n"
+                            f"traceback.format_exc()\n")
             print(e)
 
         # Increment count for scanned IPs
-        servers_scanned += 1
+        with servers_scanned_lock:
+            servers_scanned += 1
 
 
 if __name__ == '__main__':
@@ -137,14 +192,10 @@ if __name__ == '__main__':
     # Clear screen
     cls()
 
-    read_ips()
-    clean_ips()
+    # Parse command lind arguments
+    parse_args()
 
     print(f"[INFO] IPs to be scanned: {len(ip_list)}")
-
-    # Set number of threads
-    num_threads = input("Enter number of threads: ")
-    num_threads = int(num_threads)
 
     # Clear screen
     cls()
@@ -156,33 +207,19 @@ if __name__ == '__main__':
     work_per_thread = math.floor(num_ips / num_threads)
     leftover = (num_ips - (work_per_thread * num_threads))
 
-    # Logging info for the start of scan
-    log(log_file, f"[INFO] IPs to be scanned: {num_ips}\n"
-        f"[INFO] Number of threads selected: {num_threads}\n"
-        f"[INFO] Work per thread: {work_per_thread}\n"
-        f"[INFO] Leftover work for main thread: {leftover}\n\n")
-
     # Begin scan timing
     time_start = time.time()
 
-    # Create each thread and assign a chunk of work to it
-    for i in range(num_threads):
-        thread = threading.Thread(
-            target=cycle, args=(work_per_thread * i, work_per_thread * i + work_per_thread,))
-        threads.append(thread)
-        thread.start()
-
-    thread = threading.Thread(target=display_statistics)
-    threads.append(thread)
-    thread.start()
+    # Start threads
+    init_threads()
 
     # If number of IPs / number of threads has leftover work main thread takes care of it
     if leftover > 0:
         cycle(num_ips - leftover - 1, num_ips - 1)
 
     # Wait for threads to finish
-    for thread in threads:
-        thread.join()
+    for worker in threads:
+        worker.join()
 
     # End scan timing
     time_end = time.time()
@@ -190,13 +227,11 @@ if __name__ == '__main__':
     # Calculate scan timing
     total_time = math.floor(time_end - time_start)
 
-    # End of scan
-    log(log_file, "-------------------------------------------------------------------------\n\n")
-
     cls()
-    print(f"MinecraftServerScanner: Done\nElapsed Time: {total_time} seconds\n"
-          f"Servers Found: {servers_found}\nServers Scanned: {servers_scanned}\n"
-          f"--------------------------------------------\n\n")
 
     for item in server_list:
         print(item)
+
+    print(f"MinecraftServerScanner: Done\nElapsed Time: {total_time} seconds\n"
+          f"Servers Found: {servers_found}\nServers Scanned: {servers_scanned}\n"
+          f"--------------------------------------------\n\n")

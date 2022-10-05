@@ -5,8 +5,9 @@ import os
 import time
 import math
 import socket
+import traceback
 import threading
-import datetime
+import dns.resolver
 from mcstatus import JavaServer
 
 PORT = 25565
@@ -90,8 +91,6 @@ def query(host):
 
 # Cycle through the portion of IP list that belongs to current thread
 def cycle(start, end):
-    # Keep track of number of IPs scanned
-    count = 0
 
     # Keep track of servers found
     global servers_found
@@ -99,12 +98,6 @@ def cycle(start, end):
 
     for ip in ip_list[start:end]:
         try:
-            # Increment count for scanned IPs
-            count += 1
-            servers_scanned += 1
-
-            # Visualize IPs Scanned
-            log("scannning.txt", f"{ip}\n")
 
             # Query a server for info
             server = query(ip)
@@ -128,10 +121,15 @@ def cycle(start, end):
             pass
         except OSError:
             pass
+        except dns.resolver.LifetimeTimeout:
+            pass
+        except Exception as e:
+            log("fail.txt", f"{traceback.format_exc()}\nFailed while executing: {ip}\n"
+                            f"Thread ID: {threading.get_ident()}\n\n")
+            print(e)
 
-    # Threads log to a file when they are done
-    log(log_file, f"[INFO] {threading.get_ident()} -> done ({datetime.datetime.now()})\n"
-        f"[INFO] IPs scanned: {count}\n\n")
+        # Increment count for scanned IPs
+        servers_scanned += 1
 
 
 if __name__ == '__main__':
@@ -142,7 +140,7 @@ if __name__ == '__main__':
     read_ips()
     clean_ips()
 
-    print(f"Ips to be scanned: {len(ip_list)}")
+    print(f"[INFO] IPs to be scanned: {len(ip_list)}")
 
     # Set number of threads
     num_threads = input("Enter number of threads: ")
@@ -196,7 +194,7 @@ if __name__ == '__main__':
     log(log_file, "-------------------------------------------------------------------------\n\n")
 
     cls()
-    print(f"MinecraftServerScanner -> Done\nElapsed Time: {total_time} seconds\n"
+    print(f"MinecraftServerScanner: Done\nElapsed Time: {total_time} seconds\n"
           f"Servers Found: {servers_found}\nServers Scanned: {servers_scanned}\n"
           f"--------------------------------------------\n\n")
 

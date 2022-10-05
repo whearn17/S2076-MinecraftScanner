@@ -31,6 +31,7 @@ servers_scanned = 0
 
 file_lock = threading.Lock()
 server_list_lock = threading.Lock()
+servers_found_lock = threading.Lock()
 servers_scanned_lock = threading.Lock()
 
 
@@ -70,8 +71,8 @@ def parse_args():
         clean_ips()
 
     # Number of threads argument
-    if args.threads:
-        num_threads = args.threads
+    if args.num_threads:
+        num_threads = args.num_threads
     else:
         num_threads = 100
 
@@ -80,16 +81,16 @@ def init_args():
     parser = argparse.ArgumentParser(prog="MinecraftServerScanner.py")
 
     # Input IP file argument
-    parser.add_argument("-i", "--input-file", type=str, help="Scan a list of IPs from a file", dest="input_file")
+    parser.add_argument("-i", "--input-file", type=str, help="Scan a list of IPs from a file")
 
     # Output scan to file argument
-    parser.add_argument("-o", "--output-file", type=str, help="Output scan to a file", dest="output_file")
+    parser.add_argument("-o", "--output-file", type=str, help="Output scan to a file")
 
     # Ignore IPs from file argument
-    parser.add_argument("-e", "--exclude-file", type=str, help="Exclude a list of IPs from a file", dest="exclude_file")
+    parser.add_argument("-e", "--exclude-file", type=str, help="Exclude a list of IPs from a file")
 
     # Number of threads argument
-    parser.add_argument("-t", "--threads", type=int, help="Number of threads for scanning", dest="threads")
+    parser.add_argument("-t", "--num-threads", type=int, help="Number of threads for scanning")
 
     return parser.parse_args()
 
@@ -165,7 +166,8 @@ def cycle(start, end):
             # Query a server for info
             server = query(ip)
             add_server(server)
-            servers_found += 1
+            with servers_found_lock:
+                servers_found += 1
 
         except socket.timeout:
             pass
@@ -179,7 +181,7 @@ def cycle(start, end):
             pass
         except Exception as e:
             log("fail.txt", f"[ERROR] An unkown error occured... Scanning will continue\n\n"
-                            f"traceback.format_exc()\n")
+                            f"{traceback.format_exc()}\n")
             print(e)
 
         # Increment count for scanned IPs
@@ -232,6 +234,6 @@ if __name__ == '__main__':
     for item in server_list:
         print(item)
 
-    print(f"MinecraftServerScanner: Done\nElapsed Time: {total_time} seconds\n"
-          f"Servers Found: {servers_found}\nServers Scanned: {servers_scanned}\n"
-          f"--------------------------------------------\n\n")
+    print(f"--------------------------------------------\n"
+          f"MinecraftServerScanner: Done\nElapsed Time: {total_time} seconds\n"
+          f"Servers Found: {servers_found}\nServers Scanned: {servers_scanned}\n")

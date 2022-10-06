@@ -21,6 +21,12 @@ connection is what is called a blocking operation. This means that while we wait
 the server to respond, we don't have anything else to do, so we might as well scan another
 server (which is why we use so many threads).
 
+I have set a default number of threads that I feel will work best for most computers. 
+You can change that number with the -n switch. It is a good idea to scan a sample list
+(maybe 1k-5k hosts) and try some different options to see how it affects your speed and
+the number of servers found (this may change just from people shutting their servers down
+or booting them up).
+
 ## Usage
 
 ```

@@ -17,7 +17,7 @@ ip_list = []
 threads = []
 num_ips = 0
 num_threads = 500
-timeout = 3
+timeout = 10
 stop = False
 
 ip_read_file = ""

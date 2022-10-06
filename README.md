@@ -10,8 +10,6 @@ produces a faster but more innacurate scan, potentially missing IPs.
 ## Usage
 
 ```
-[//]: # (    usage: MinecraftServerScanner.py [-h] [-i INPUT_FILE] [-o OUTPUT_FILE] [-e EXCLUDE_FILE] [-n NUM_THREADS] [-t HOST_TIMEOUT] [ip_range])
-
     positional arguments:
         ip_range              Range of IPs to scan
 

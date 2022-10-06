@@ -4,8 +4,6 @@ A Multi-Threaded Minecraft Server scanner optimized for scanning a large range o
 
 ## Scanning speeds and optimization
 
-You can scan 1 Million Minecraft Servers in less than 4 hours
-
 From my testing, using more threads and a smaller host timeout
 produces a faster but more innacurate scan, potentially missing hosts. 
 I used 1000 threads with a 10 second host timeout and was able to scan 

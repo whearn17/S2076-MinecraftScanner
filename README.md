@@ -1,5 +1,6 @@
 # Very Fast Minecraft Server Scanner
 
+A Multi-Threaded Minecraft Server scanner optimized for scanning a large range of IPs.
 
 ## Scanning speeds
 

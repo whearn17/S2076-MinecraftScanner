@@ -2,6 +2,12 @@
 
 A Multi-Threaded Minecraft Server scanner optimized for scanning a large range of IPs.
 
+## Disclaimer
+
+You should only scan IPs that you are permitted to scan. Unauthorized
+scanning can get you in trouble and I am not liable for what you choose 
+to scan.
+
 ## Scanning speeds and optimization
 
 From my testing, using more threads and a smaller host timeout

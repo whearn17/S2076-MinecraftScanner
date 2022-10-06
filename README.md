@@ -9,8 +9,7 @@ produces a faster but more innacurate scan, potentially missing IPs.
 
 ## Usage
 
-<sub>
-
+```
 [//]: # (    usage: MinecraftServerScanner.py [-h] [-i INPUT_FILE] [-o OUTPUT_FILE] [-e EXCLUDE_FILE] [-n NUM_THREADS] [-t HOST_TIMEOUT] [ip_range])
 
     positional arguments:
@@ -28,4 +27,4 @@ produces a faster but more innacurate scan, potentially missing IPs.
                             Number of threads for scanning
       -t HOST_TIMEOUT, --host-timeout HOST_TIMEOUT
                             Number of seconds to wait for host to respond
-</sub>
+```

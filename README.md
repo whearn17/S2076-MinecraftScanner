@@ -7,7 +7,7 @@ I wouldn't recommend going above 1000 threads.
 From my testing, using more threads and a smaller host timeout
 produces a faster but more innacurate scan, potentially missing IPs.
 
-##Usage
+## Usage
 <sub>
 
     usage: MinecraftServerScanner.py [-h] [-i INPUT_FILE] [-o OUTPUT_FILE] [-e EXCLUDE_FILE] [-n NUM_THREADS] [-t HOST_TIMEOUT] [ip_range]

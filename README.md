@@ -19,7 +19,7 @@ interpreter lock, your results may be worse with a CPU clocked slower than mine.
 The reason that this program performs so well on one CPU core is because a TCP network 
 connection is what is called a blocking operation. This means that while we wait for 
 the server to respond, we don't have anything else to do, so we might as well scan another
-server.
+server (which is why we use so many threads).
 
 ## Usage
 

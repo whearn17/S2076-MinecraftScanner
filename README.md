@@ -2,6 +2,12 @@
 
 A Multi-Threaded Minecraft Server scanner optimized for scanning a large range of IPs.
 
+## Requirements
+
+```
+pip install mcstatus
+```
+
 ## Disclaimer
 
 You should only scan IPs that you are permitted to scan. Unauthorized
@@ -36,19 +42,19 @@ or booting them up).
 ## Usage
 
 ```
-    positional arguments:
-        ip_range              Range of IPs to scan
+positional arguments:
+    ip_range              Range of IPs to scan
 
-    optional arguments:
-    -h, --help            show this help message and exit
-      -i INPUT_FILE, --input-file INPUT_FILE
-                            Scan a list of IPs from a file
-      -o OUTPUT_FILE, --output-file OUTPUT_FILE
-                            Output scan to a file
-      -e EXCLUDE_FILE, --exclude-file EXCLUDE_FILE
-                            Exclude a list of IPs from a file
-      -n NUM_THREADS, --num-threads NUM_THREADS
-                            Number of threads for scanning
-      -t HOST_TIMEOUT, --host-timeout HOST_TIMEOUT
-                            Number of seconds to wait for host to respond
+optional arguments:
+-h, --help            show this help message and exit
+  -i INPUT_FILE, --input-file INPUT_FILE
+                        Scan a list of IPs from a file
+  -o OUTPUT_FILE, --output-file OUTPUT_FILE
+                        Output scan to a file
+  -e EXCLUDE_FILE, --exclude-file EXCLUDE_FILE
+                        Exclude a list of IPs from a file
+  -n NUM_THREADS, --num-threads NUM_THREADS
+                        Number of threads for scanning
+  -t HOST_TIMEOUT, --host-timeout HOST_TIMEOUT
+                        Number of seconds to wait for host to respond
 ```

@@ -2,7 +2,6 @@
 # Program: MinecraftServerScanner
 
 import os
-import sys
 import time
 import math
 import socket
@@ -13,21 +12,17 @@ import threading
 import dns.resolver
 from mcstatus import JavaServer
 
-PORT = 25565
+server_list = []
 ip_list = []
 threads = []
 num_ips = 0
-num_threads = 300
-work_per_thread = 0
+num_threads = 500
 timeout = 3
 stop = False
 
 ip_read_file = ""
 ip_exclude_file = ""
-log_file = "log.txt"
 server_file = ""
-
-server_list = []
 
 servers_found = 0
 servers_scanned = 0
@@ -142,7 +137,6 @@ def display_statistics():
         print(f"{percent_done}% Done")
         print(f"Servers Found: {servers_found}")
         print(f"Servers Scanned: {servers_scanned}")
-        print(f"Servers Left: {len(ip_list)}")
         time.sleep(5)
 
 
@@ -190,10 +184,6 @@ def cycle():
             with ip_list_lock:
                 ip = ip_list.pop()
 
-            # Increment count for scanned IPs
-            with servers_scanned_lock:
-                servers_scanned += 1
-
             # Query a server for info
             server = query(ip)
             add_server(server)
@@ -215,58 +205,42 @@ def cycle():
                             f"{traceback.format_exc()}\n")
             print(e)
 
+        # Increment count for scanned IPs
+        with servers_scanned_lock:
+            servers_scanned += 1
 
-try:
-    if __name__ == '__main__':
 
-        # Clear screen
-        cls()
+if __name__ == '__main__':
 
-        # Parse command lind arguments
-        parse_args()
+    # Clear screen
+    cls()
 
-        print(f"[INFO] IPs to be scanned: {len(ip_list)}")
+    # Parse command lind arguments
+    parse_args()
 
-        # Clear screen
-        cls()
+    # Get total number of IPs
+    num_ips = len(ip_list)
 
-        # Get total number of IPs
-        num_ips = len(ip_list)
+    # Make sure there aren't more threads than IPs to scan
+    if num_ips < num_threads:
+        num_threads = num_ips
 
-        # Make sure there aren't more threads than IPs to scan
-        if num_ips < num_threads:
-            num_threads = num_ips
+    # Begin scan timing
+    time_start = time.time()
 
-        # Begin scan timing
-        time_start = time.time()
+    # Start threads
+    init_threads()
 
-        # Start threads
-        init_threads()
-
+    try:
         # Wait for threads to finish
-        while threads:
-            for worker in threads:
-                if worker.join(timeout=1):
-                    threads.remove(worker)
-
-        # End scan timing
-        time_end = time.time()
-
-        # Calculate scan timing
-        total_time = math.floor(time_end - time_start)
-
-        cls()
-
-        for item in server_list:
-            print(item)
-
-        print(f"--------------------------------------------\n"
-              f"MinecraftServerScanner: Done\nElapsed Time: {total_time} seconds\n"
-              f"Servers Found: {servers_found}\nServers Scanned: {servers_scanned}\n")
-except KeyboardInterrupt:
-    stop = True
-
-    print(f"Quitting...\n")
+        for worker in threads:
+            while worker.is_alive():
+                worker.join(3)
+    except KeyboardInterrupt:
+        stop = True
+        print("Quitting")
+        for worker in threads:
+            worker.join()
 
     # End scan timing
     time_end = time.time()
@@ -274,8 +248,7 @@ except KeyboardInterrupt:
     # Calculate scan timing
     total_time = math.floor(time_end - time_start)
 
-    for worker in threads:
-        worker.join()
+    cls()
 
     for item in server_list:
         print(item)

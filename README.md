@@ -1,11 +1,14 @@
 # Very Fast Minecraft Server Scanner
 
+
+## Scanning speeds
+
 You can scan 1 Million Minecraft Servers in less than 4 hours
 
-I wouldn't recommend going above 1000 threads.
-
 From my testing, using more threads and a smaller host timeout
-produces a faster but more innacurate scan, potentially missing IPs.
+produces a faster but more innacurate scan, potentially missing IPs. 
+I used 1000 threads with a 10 second host timeout and was able to scan 
+1 million IPs in a little less than 4 hours.
 
 ## Usage
 

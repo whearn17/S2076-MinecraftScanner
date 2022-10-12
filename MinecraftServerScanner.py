@@ -118,6 +118,14 @@ def add_server(addr):
         server_list.append(addr)
 
 
+def write_output():
+    if server_file and servers_found:
+        with open(server_file, "a") as file:
+            for server in server_list:
+                file.write(server)
+        file.close()
+
+
 def cls():
     os.system('cls' if os.name == 'nt' else 'clear')
 
@@ -251,6 +259,8 @@ if __name__ == '__main__':
     total_time = math.floor(time_end - time_start)
 
     cls()
+
+    write_output()
 
     for item in server_list:
         print(item)

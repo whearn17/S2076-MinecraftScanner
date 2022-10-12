@@ -5,6 +5,7 @@ import os
 import time
 import math
 import socket
+import random
 import argparse
 import ipaddress
 import traceback
@@ -146,6 +147,7 @@ def read_ips():
         for line in f:
             ip_list.append(line.rstrip())
     f.close()
+    random.shuffle(ip_list)
 
 
 # Read a list of IPs already found and remove from list

@@ -2,10 +2,12 @@
 # Program: MinecraftServerScanner
 
 import os
+import psql
 import time
 import math
 import socket
 import random
+import getpass
 import argparse
 import ipaddress
 import traceback
@@ -28,6 +30,11 @@ server_file = ""
 servers_found = 0
 servers_scanned = 0
 
+db_host = ""
+db_name = ""
+db_user = ""
+db_pass = ""
+
 file_lock = threading.Lock()
 ip_list_lock = threading.Lock()
 server_list_lock = threading.Lock()
@@ -35,6 +42,22 @@ servers_found_lock = threading.Lock()
 servers_scanned_lock = threading.Lock()
 
 
+# Class to hold Minecraft Servers as objects
+class MinecraftServer:
+    def __init__(self, ip, version, prot, description, p_online, p_max):
+        self.ip = ip
+        self.version = version
+        self.prot = prot
+        self.description = description
+        self.p_online = p_online
+        self.p_max = p_max
+
+    def to_string(self):
+        return (f"Minecraft: {self.version} Protocol ({self.prot}) \nDescription: "
+                f"{self.description} \n{self.p_online}/{self.p_max}\n{self.ip}\n\n")
+
+
+# Create threads and start working
 def init_threads():
     # Create each thread and assign a chunk of work to it
     for i in range(num_threads):
@@ -47,28 +70,23 @@ def init_threads():
     thread.start()
 
 
+# Parse each command line argument
 def parse_args():
     global ip_read_file
     global ip_exclude_file
     global server_file
     global num_threads
     global timeout
+    global db_host
+    global db_name
+    global db_user
+    global db_pass
 
     args = init_args()
-
-    # Input IP file argument
-    if args.input_file:
-        ip_read_file = args.input_file
-        read_ips()
 
     # Output scan to file argument
     if args.output_file:
         server_file = args.output_file
-
-    # Ignore IPs from file argument
-    if args.exclude_file:
-        ip_exclude_file = args.exclude_file
-        clean_ips()
 
     # Number of threads argument
     if args.num_threads:
@@ -88,7 +106,34 @@ def parse_args():
     if args.host_timeout:
         timeout = args.host_timeout
 
+    # Postgres argument
+    if args.postgres:
+        db_host = input("Enter server hostname or IP: ")
+        db_name = input("Enter Database name: ")
+        db_user = input("Enter Database username: ")
+        db_pass = getpass.getpass("Enter Database password: ")
+        try:
+            psql.check_pass(db_host, db_name, db_user, db_pass)
+        except Exception as e:
+            print(f"\n{e}\n")
+            exit(0)
 
+    # Input IP file argument
+    if args.input_file:
+        ip_read_file = args.input_file
+        cls()
+        print("Reading IPs from input file...")
+        read_ips()
+
+    # Ignore IPs from file argument
+    if args.exclude_file:
+        ip_exclude_file = args.exclude_file
+        cls()
+        print("Reading IPs from exclude file...")
+        clean_ips()
+
+
+# Create the command line argument
 def init_args():
     parser = argparse.ArgumentParser(prog="MinecraftServerScanner.py")
 
@@ -110,26 +155,48 @@ def init_args():
     # Host timeout argument
     parser.add_argument("-t", "--host-timeout", type=int, help="Number of seconds to wait for host to respond")
 
+    # Postgres argument
+    parser.add_argument("-pg", "--postgres", action="store_true", help="Enable export of server list to PostgreSQL")
+
     return parser.parse_args()
 
 
-def add_server(addr):
+# Send servers found to database
+def send_to_db():
+    if server_list:
+        psql.send(server_list, db_host, db_name, db_user, db_pass)
+
+
+# Create server object and add to server list
+def add_server(info, ip):
+    server = MinecraftServer(ip, info.version.name, info.version.protocol,
+                             info.description, info.players.online, info.players.max)
     with server_list_lock:
-        server_list.append(addr)
+        server_list.append(server)
 
 
+# Write scan information when done
 def write_output():
     if server_file and servers_found:
-        with open(server_file, "a") as file:
+        with open(server_file, "a", encoding="utf-8") as file:
             for server in server_list:
-                file.write(server)
+                file.write(server.to_string())
         file.close()
 
+    for item in server_list:
+        print(item.to_string())
 
+    print(f"--------------------------------------------\n"
+          f"MinecraftServerScanner: Done\nElapsed Time: {total_time} seconds\n"
+          f"Servers Found: {servers_found}\nServers Scanned: {servers_scanned}\n")
+
+
+# Clear screen
 def cls():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 
+# Quick log to a file
 def log(filename, message):
     if not filename:
         return
@@ -139,6 +206,7 @@ def log(filename, message):
         f.close()
 
 
+# Display scan info as the program runs
 def display_statistics():
     while servers_scanned < num_ips and not stop:
         cls()
@@ -176,9 +244,7 @@ def clean_ips():
 # Use the mcstatus lookup method to search for a server
 def query(host):
     scan = JavaServer.lookup(host, timeout)
-    status = scan.status()
-    return(f"Minecraft: {status.version.name} Protocol ({status.version.protocol}) \nDescription: "
-           f"{status.description} \n{status.players.online}/{status.players.max}\n{host}\n\n")
+    return scan.status()
 
 
 # Cycle through the portion of IP list that belongs to current thread
@@ -196,7 +262,7 @@ def cycle():
 
             # Query a server for info
             server = query(ip)
-            add_server(server)
+            add_server(server, ip)
             with servers_found_lock:
                 servers_found += 1
 
@@ -211,8 +277,8 @@ def cycle():
         except dns.resolver.LifetimeTimeout:
             pass
         except Exception as e:
-            log("fail.txt", f"[ERROR] An unkown error occured... Scanning will continue\n\n"
-                            f"{traceback.format_exc()}\n")
+            log("log.txt", f"[ERROR] An unkown error occured... Scanning will continue\n\n"
+                f"{traceback.format_exc()}\n\n")
             print(e)
 
         # Increment count for scanned IPs
@@ -262,9 +328,4 @@ if __name__ == '__main__':
 
     write_output()
 
-    for item in server_list:
-        print(item)
-
-    print(f"--------------------------------------------\n"
-          f"MinecraftServerScanner: Done\nElapsed Time: {total_time} seconds\n"
-          f"Servers Found: {servers_found}\nServers Scanned: {servers_scanned}\n")
+    send_to_db()

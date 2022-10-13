@@ -4,14 +4,15 @@ A Multi-Threaded Minecraft Server scanner optimized for scanning a large range o
 
 ## Requirements
 
+Required for the main module
 ```
 pip install mcstatus
 ```
 
+Required for using the Postgresql option
 ```
 pip install psycopg2 
 ```
-Required for using the Postgresql option
 
 ## Disclaimer
 

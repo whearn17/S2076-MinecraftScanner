@@ -63,7 +63,7 @@ optional arguments:
 The Postgres feature is still in testing but should be done relatively soon. It is available, 
 however, nonetheless. It may contain bugs.
 
-To use it, add the -pg or --postgres switche and when the program is run it will prompt for
+To use it, add the -pg or --postgres switch and when the program is run it will prompt for
 database info.
 
 To avoid giving myself a major headache I automatically delete the table and create it for you

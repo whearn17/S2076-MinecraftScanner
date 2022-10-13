@@ -1,6 +1,7 @@
 import psycopg2
 
 
+# Send the servers to the database
 def send(serverlist, host, name, user, password):
     try:
         conn = psycopg2.connect(host=host, dbname=name,

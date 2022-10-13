@@ -6,6 +6,7 @@ A Multi-Threaded Minecraft Server scanner optimized for scanning a large range o
 
 ```
 pip install mcstatus
+pip install psycopg2 (optional)
 ```
 
 ## Disclaimer

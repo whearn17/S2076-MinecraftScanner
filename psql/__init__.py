@@ -1,2 +1,2 @@
 from .db import send
-from .db import check_pass
+from .db import reset_table

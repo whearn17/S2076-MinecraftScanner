@@ -67,9 +67,15 @@ To use it, use the -pg or --postgres switches and when the program is run it wil
 database info.
 
 To avoid giving myself a major headache I automatically delete the table and create it for you
-every time the program is run (if you already have a table  in your database called "minecraft" 
-make sure to change the query in the code or else it will be deleted). It contains queries that 
-I created and are not configurable without changing the code. The reason for this is because there
-is a finite amount of information that these minecraft servers actually give so to create a whole
-system of configurable queries would be annoying and unnecessary. I will likely add an option to 
-change the table name soon.
+every time the program is run. I could implement a system where it queries the database and checks
+to see if an IP already exists to avoid duplicates but then I would also have to check whether any
+information about that server has changed. I may add this in the future but for now it stays.
+
+The queries that I created and are not configurable without changing the code. The reason for this 
+is because there is a finite amount of information that these minecraft servers actually give so 
+to create a whole system of configurable queries would be annoying and unnecessary. I will likely 
+add an option to change the table name soon.
+
+### Warning
+If you already have a table in your database called "minecraft" make sure to change the query 
+inside psql/db.py or else your table will be deleted.

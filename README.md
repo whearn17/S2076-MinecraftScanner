@@ -67,6 +67,9 @@ To use it, use the -pg or --postgres switches and when the program is run it wil
 database info.
 
 To avoid giving myself a major headache I automatically delete the table and create it for you
-every time the program is run (if you already have a table called "minecraft" make sure to change
-the query in the code. It contains queries that I created and are not configurable without changing
-the code.
+every time the program is run (if you already have a table  in your database called "minecraft" 
+make sure to change the query in the code or else it will be deleted). It contains queries that 
+I created and are not configurable without changing the code. The reason for this is because there
+is a finite amount of information that these minecraft servers actually give so to create a whole
+system of configurable queries would be annoying and unnecessary. I will likely add an option to 
+change the table name soon.

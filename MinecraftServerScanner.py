@@ -314,7 +314,7 @@ if __name__ == '__main__':
                 worker.join(3)
     except KeyboardInterrupt:
         stop = True
-        print("Quitting")
+        print("Stopping scan (This may take a minute)")
         for worker in threads:
             worker.join()
 

@@ -113,7 +113,7 @@ def parse_args():
         db_user = input("Enter Database username: ")
         db_pass = getpass.getpass("Enter Database password: ")
         try:
-            psql.check_pass(db_host, db_name, db_user, db_pass)
+            psql.reset_table(db_host, db_name, db_user, db_pass)
         except Exception as e:
             print(f"\n{e}\n")
             exit(0)

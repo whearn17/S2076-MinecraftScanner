@@ -15,6 +15,8 @@ import threading
 import dns.resolver
 from mcstatus import JavaServer
 
+VERSION = "3.1.0"
+
 server_list = []
 ip_list = []
 threads = []

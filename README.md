@@ -63,6 +63,7 @@ optional arguments:
                         Number of threads for scanning
   -t HOST_TIMEOUT, --host-timeout HOST_TIMEOUT
                         Number of seconds to wait for host to respond
+  -pg, --postgres       Enable export of server list to PostgreSQL
 ```
 
 ## Postgres

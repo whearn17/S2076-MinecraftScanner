@@ -9,8 +9,9 @@ pip install mcstatus
 ```
 
 ```
-pip install psycopg2 (optional)
+pip install psycopg2 
 ```
+Required for using the Postgresql option
 
 ## Disclaimer
 

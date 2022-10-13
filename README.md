@@ -71,7 +71,7 @@ every time the program is run. I could implement a system where it queries the d
 to see if an IP already exists to avoid duplicates but then I would also have to check whether any
 information about that server has changed. I may add this in the future but for now it stays.
 
-The queries that I created and are not configurable without changing the code. The reason for this 
+The queries that I created are not configurable without changing the code. The reason for this 
 is because there is a finite amount of information that these minecraft servers actually give so 
 to create a whole system of configurable queries would be annoying and unnecessary. I will likely 
 add an option to change the table name soon.

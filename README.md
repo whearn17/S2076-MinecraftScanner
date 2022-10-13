@@ -58,3 +58,15 @@ optional arguments:
   -t HOST_TIMEOUT, --host-timeout HOST_TIMEOUT
                         Number of seconds to wait for host to respond
 ```
+
+## Postgres
+The Postgres feature is still in testing but should be done relatively soon. It is available, 
+however, nonetheless. It may contain bugs.
+
+To use it, use the -pg or --postgres switches and when the program is run it will prompt for
+database info.
+
+To avoid giving myself a major headache I automatically delete the table and create it for you
+every time the program is run (if you already have a table called "minecraft" make sure to change
+the query in the code. It contains queries that I created and are not configurable without changing
+the code.

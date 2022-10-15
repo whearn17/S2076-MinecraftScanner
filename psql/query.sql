@@ -1,5 +1,5 @@
 -- Creat the minecraft table
-CREATE TABLE IF NOT EXISTS minecraft (
+CREATE TABLE minecraft (
     ip_address inet PRIMARY KEY,
     version VARCHAR (500),
     protocol VARCHAR (500),

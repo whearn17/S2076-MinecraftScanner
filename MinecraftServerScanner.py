@@ -116,17 +116,12 @@ def parse_args():
     # Postgres argument
     if args.postgres:
         pg = True
-        db_host = input("Enter server hostname or IP: ")
-        db_name = input("Enter Database name: ")
-        db_user = input("Enter Database username: ")
-        db_pass = getpass.getpass("Enter Database password: ")
-        db_table = input("Enter table name: ")
-        sslmode = input("SSL Mode (Disable/Allow/Prefer/Require): ").lower()
-        try:
-            psql.reset_table(db_host, db_name, db_user, db_pass, db_table, sslmode)
-        except Exception as e:
-            print(f"\n{e}\n")
-            exit(0)
+
+        db_host, db_name, db_user, db_pass, db_table, sslmode = psql.read_config(
+            "psql.json")
+
+        psql.reset_table(db_host, db_name, db_user,
+                         db_pass, db_table, sslmode)
 
     # Input IP file argument
     if args.input_file:
@@ -148,32 +143,40 @@ def init_args():
     parser = argparse.ArgumentParser(prog="MinecraftServerScanner.py")
 
     # Input IP file argument
-    parser.add_argument("-i", "--input-file", type=str, help="Scan a list of IPs from a file")
+    parser.add_argument("-i", "--input-file", type=str,
+                        help="Scan a list of IPs from a file")
 
     # Output scan to file argument
-    parser.add_argument("-o", "--output-file", type=str, help="Output scan to a file")
+    parser.add_argument("-o", "--output-file", type=str,
+                        help="Output scan to a file")
 
     # Ignore IPs from file argument
-    parser.add_argument("-e", "--exclude-file", type=str, help="Exclude a list of IPs from a file")
+    parser.add_argument("-e", "--exclude-file", type=str,
+                        help="Exclude a list of IPs from a file")
 
     # Number of threads argument
-    parser.add_argument("-n", "--num-threads", type=int, help="Number of threads for scanning")
+    parser.add_argument("-n", "--num-threads", type=int,
+                        help="Number of threads for scanning")
 
     # IP range argument
-    parser.add_argument("ip_range", type=str, nargs="?", help="Range of IPs to scan")
+    parser.add_argument("ip_range", type=str, nargs="?",
+                        help="Range of IPs to scan")
 
     # Host timeout argument
-    parser.add_argument("-t", "--host-timeout", type=int, help="Number of seconds to wait for host to respond")
+    parser.add_argument("-t", "--host-timeout", type=int,
+                        help="Number of seconds to wait for host to respond")
 
     # Postgres argument
-    parser.add_argument("-pg", "--postgres", action="store_true", help="Enable export of server list to PostgreSQL")
+    parser.add_argument("-pg", "--postgres", action="store_true",
+                        help="Enable export of server list to PostgreSQL")
 
     return parser.parse_args()
 
 
 # Send servers found to database
 def send_to_db(server, ip):
-    psql.send(server, db_host, db_name, db_user, db_pass, db_table, sslmode, ip)
+    psql.send(server, db_host, db_name, db_user,
+              db_pass, db_table, sslmode, ip)
 
 
 # Create server object and add to server list

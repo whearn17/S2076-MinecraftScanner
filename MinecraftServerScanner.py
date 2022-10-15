@@ -15,7 +15,7 @@ import threading
 import dns.resolver
 from mcstatus import JavaServer
 
-VERSION = "3.1.0"
+VERSION = "3.1.1"
 
 server_list = []
 ip_list = []
@@ -24,6 +24,7 @@ num_ips = 0
 num_threads = 500
 timeout = 10
 stop = False
+pg = False
 
 ip_read_file = ""
 ip_exclude_file = ""
@@ -36,6 +37,8 @@ db_host = ""
 db_name = ""
 db_user = ""
 db_pass = ""
+db_table = ""
+sslmode = ""
 
 file_lock = threading.Lock()
 ip_list_lock = threading.Lock()
@@ -61,7 +64,6 @@ class MinecraftServer:
 
 # Create threads and start working
 def init_threads():
-    # Create each thread and assign a chunk of work to it
     for i in range(num_threads):
         thread = threading.Thread(target=cycle)
         threads.append(thread)
@@ -83,6 +85,9 @@ def parse_args():
     global db_name
     global db_user
     global db_pass
+    global db_table
+    global sslmode
+    global pg
 
     args = init_args()
 
@@ -110,12 +115,15 @@ def parse_args():
 
     # Postgres argument
     if args.postgres:
+        pg = True
         db_host = input("Enter server hostname or IP: ")
         db_name = input("Enter Database name: ")
         db_user = input("Enter Database username: ")
         db_pass = getpass.getpass("Enter Database password: ")
+        db_table = input("Enter table name: ")
+        sslmode = input("SSL Mode (Disable/Allow/Prefer/Require): ").lower()
         try:
-            psql.reset_table(db_host, db_name, db_user, db_pass)
+            psql.reset_table(db_host, db_name, db_user, db_pass, db_table, sslmode)
         except Exception as e:
             print(f"\n{e}\n")
             exit(0)
@@ -164,9 +172,8 @@ def init_args():
 
 
 # Send servers found to database
-def send_to_db():
-    if server_list:
-        psql.send(server_list, db_host, db_name, db_user, db_pass)
+def send_to_db(server, ip):
+    psql.send(server, db_host, db_name, db_user, db_pass, db_table, sslmode, ip)
 
 
 # Create server object and add to server list
@@ -241,6 +248,7 @@ def clean_ips():
         print(f"[INFO] {skip} IPs being ignored")
     except FileNotFoundError:
         print("[INFO] No IPs being ignored")
+        time.sleep(.5)
 
 
 # Use the mcstatus lookup method to search for a server
@@ -264,7 +272,15 @@ def cycle():
 
             # Query a server for info
             server = query(ip)
+
+            # Add server object
             add_server(server, ip)
+
+            # Check if postgres is enabled and send to databse if true
+            if pg:
+                send_to_db(server, ip)
+
+            # If we made it here mark server as found
             with servers_found_lock:
                 servers_found += 1
 
@@ -277,6 +293,8 @@ def cycle():
         except OSError:
             pass
         except dns.resolver.LifetimeTimeout:
+            pass
+        except IndexError:
             pass
         except Exception as e:
             log("log.txt", f"[ERROR] An unkown error occured... Scanning will continue\n\n"
@@ -329,5 +347,3 @@ if __name__ == '__main__':
     cls()
 
     write_output()
-
-    send_to_db()

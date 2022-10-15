@@ -86,3 +86,9 @@ add an option to change the table name soon.
 ### Warning
 If you already have a table in your database called "minecraft" make sure to change the query 
 inside psql/db.py or else your table will be deleted.
+
+#### To Do
+* Configuration files for Postgres databases
+* Time formatting for scan time
+* Version argument
+* Organize and comment

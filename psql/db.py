@@ -1,6 +1,7 @@
 import psycopg2
 import psycopg2.errors
 import traceback
+import datetime
 
 
 # Send the servers to the database
@@ -22,7 +23,11 @@ def send(server, host, name, user, password, table, ssl, ip):
         conn.close()
     except Exception as e:
         f = open("log.txt", "a")
-        f.write(f"{e}\n\n{traceback.format_exc()}\n\n")
+        f.write("---------------------------------------------------------------------\n\n"
+                f"[ERROR] An unkown error occured... Scanning will continue\n\n"
+                f"Worker currently working on -> {ip}\n\n"
+                f"{traceback.format_exc()}\n\n{e}\n\n{datetime.datetime.now()}\n\n"
+                f"---------------------------------------------------------------------\n\n")
         f.close()
 
 
@@ -36,7 +41,7 @@ def reset_table(host, name, user, password, table, ssl):
         cur.execute(f"DROP TABLE {table};")
         cur.execute(f"CREATE TABLE {table}"
                     "(ip_address inet PRIMARY KEY,"
-                    "version VARCHAR (800),"
+                    "version VARCHAR (1000),"
                     "protocol VARCHAR (500),"
                     "description VARCHAR (5000),"
                     "p_online int,"
@@ -51,7 +56,7 @@ def reset_table(host, name, user, password, table, ssl):
         cur = conn.cursor()
         cur.execute(f"CREATE TABLE {table}"
                     "(ip_address inet PRIMARY KEY,"
-                    "version VARCHAR (800),"
+                    "version VARCHAR (1000),"
                     "protocol VARCHAR (500),"
                     "description VARCHAR (5000),"
                     "p_online int,"

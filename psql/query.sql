@@ -1,9 +1,9 @@
 -- Creat the minecraft table
 CREATE TABLE minecraft (
     ip_address inet PRIMARY KEY,
-    version VARCHAR (500),
+    version VARCHAR (1000),
     protocol VARCHAR (500),
-    description VARCHAR (2000),
+    description VARCHAR (5000),
     p_online int,
     p_max int
 );

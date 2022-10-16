@@ -8,24 +8,29 @@ import math
 import socket
 import random
 import getpass
+import datetime
 import argparse
 import ipaddress
 import traceback
 import threading
 import dns.resolver
+import multiprocessing
 from mcstatus import JavaServer
 
 VERSION = "3.2.0"
+
+CPU_CORES = multiprocessing.cpu_count()
 
 server_list = []
 ip_list = []
 threads = []
 num_ips = 0
-num_threads = 500
+num_threads = 300
 timeout = 10
 stop = False
 pg = False
 
+# File names
 ip_read_file = ""
 ip_exclude_file = ""
 server_file = ""
@@ -33,6 +38,7 @@ server_file = ""
 servers_found = 0
 servers_scanned = 0
 
+# Database creds
 db_host = ""
 db_name = ""
 db_user = ""
@@ -40,6 +46,7 @@ db_pass = ""
 db_table = ""
 sslmode = ""
 
+# Threading locks
 file_lock = threading.Lock()
 ip_list_lock = threading.Lock()
 server_list_lock = threading.Lock()
@@ -62,7 +69,12 @@ class MinecraftServer:
                 f"{self.description} \n{self.p_online}/{self.p_max}\n{self.ip}\n\n")
 
 
+def mp_main():
+    init_threads()
+
 # Create threads and start working
+
+
 def init_threads():
     for i in range(num_threads):
         thread = threading.Thread(target=cycle)
@@ -300,9 +312,12 @@ def cycle():
         except IndexError:
             pass
         except Exception as e:
-            log("log.txt", f"[ERROR] An unkown error occured... Scanning will continue\n\n"
-                f"{traceback.format_exc()}\n\n")
-            print(e)
+            log("log.txt",
+                f"---------------------------------------------------------------------\n\n"
+                f"[ERROR] An unkown error occured... Scanning will continue\n\n"
+                f"Worker currently working on -> {ip}\n\n"
+                f"{traceback.format_exc()}\n\n{e}\n\n{datetime.datetime.now()}\n\n"
+                f"---------------------------------------------------------------------\n\n")
 
         # Increment count for scanned IPs
         with servers_scanned_lock:
@@ -320,9 +335,9 @@ if __name__ == '__main__':
     # Get total number of IPs
     num_ips = len(ip_list)
 
-    # Make sure there aren't more threads than IPs to scan
-    if num_ips < num_threads:
-        num_threads = num_ips
+    # Make sure there aren't more than 500 threads
+    if num_threads > 500:
+        num_threads = 500
 
     # Begin scan timing
     time_start = time.time()

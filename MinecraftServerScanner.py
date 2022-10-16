@@ -17,7 +17,7 @@ import dns.resolver
 import multiprocessing
 from mcstatus import JavaServer
 
-VERSION = "3.2.0"
+VERSION = "3.2.1"
 
 CPU_CORES = multiprocessing.cpu_count()
 

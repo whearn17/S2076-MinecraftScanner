@@ -35,10 +35,6 @@ want to do a more low profile scan or use less resources on your computer.
 ## Usage
 
 ```
-usage: MinecraftServerScanner.py [-h] [-i INPUT_FILE] [-o OUTPUT_FILE] [-e EXCLUDE_FILE] [-n NUM_THREADS] [-p PROCESSES]
-                                 [-t HOST_TIMEOUT] [-pg]
-                                 [ip_range]
-
 positional arguments:
   ip_range              Range of IPs to scan
 

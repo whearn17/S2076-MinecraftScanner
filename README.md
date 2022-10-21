@@ -10,7 +10,7 @@ This was tested on an i9-10900K overclocked to 5.2GHz all core.
 Required for the main module
 
 ```
-pip install mcstatus psycopg2
+pip install mcstatus psycopg2 numpy
 ```
 
 ## Disclaimer

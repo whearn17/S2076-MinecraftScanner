@@ -35,11 +35,15 @@ want to do a more low profile scan or use less resources on your computer.
 ## Usage
 
 ```
+usage: MinecraftServerScanner.py [-h] [-i INPUT_FILE] [-o OUTPUT_FILE] [-e EXCLUDE_FILE] [-n NUM_THREADS] [-p PROCESSES]
+                                 [-t HOST_TIMEOUT] [-pg]
+                                 [ip_range]
+
 positional arguments:
-    ip_range              Range of IPs to scan
+  ip_range              Range of IPs to scan
 
 optional arguments:
--h, --help            show this help message and exit
+  -h, --help            show this help message and exit
   -i INPUT_FILE, --input-file INPUT_FILE
                         Scan a list of IPs from a file
   -o OUTPUT_FILE, --output-file OUTPUT_FILE
@@ -48,9 +52,11 @@ optional arguments:
                         Exclude a list of IPs from a file
   -n NUM_THREADS, --num-threads NUM_THREADS
                         Number of threads for scanning
+  -p PROCESSES, --processes PROCESSES
+                        Number of processes
   -t HOST_TIMEOUT, --host-timeout HOST_TIMEOUT
                         Number of seconds to wait for host to respond
-  -pg, --postgres       Enables export of server list to PostgreSQL
+  -pg, --postgres       Enable export of server list to PostgreSQL
 ```
 
 ## Postgres

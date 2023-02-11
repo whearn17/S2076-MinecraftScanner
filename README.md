@@ -75,7 +75,7 @@ to create a whole system of configurable queries would be annoying and unnecessa
 ### Warning
 
 If you already have a table in your database called "minecraft" and you don't want it to be removed,
-then select a different table nam when the program prompts for it.
+then select a different table name when the program prompts for it.
 
 #### To Do
 

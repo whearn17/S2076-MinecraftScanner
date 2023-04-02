@@ -1,36 +1,44 @@
 # Very Fast Minecraft Server Scanner
 
-A Multi-Processed and Multi-Threaded Minecraft Server scanner that is capable of scanning 5 Million IPs
-per hour.
-
-This was tested on an i9-10900K overclocked to 5.2GHz all core.
+A high-performance Minecraft Server scanner capable of scanning over 5 million IPs per hour, utilizing multi-processing 
+and multi-threading techniques for blazing-fast results. Developed and tested on an i9-10900K overclocked to 5.2GHz 
+all-core.
 
 ## Requirements
 
-Required for the main module
+For the main module, install the following dependencies:
 
 ```
-pip install mcstatus psycopg2 numpy
+pip install mcstatus psycopg2
 ```
 
 ## Disclaimer
 
-You should only scan IPs that you are permitted to scan. Unauthorized
-scanning can get you in trouble and I am not liable for what you choose
-to scan.
+Please ensure that you only scan IPs that you have permission to scan. Unauthorized scanning can lead to legal issues, 
+and I am not liable for any consequences resulting from your scanning activities.
 
-## Scanning speeds and optimization
+## Technical Breakdown
 
-From my testing, using more threads produces a faster but more innacurate scan, potentially missing hosts. Too many threads can also stop the mcstatus module from working correctly and can throw errors.
-In versions below 4.0 this was a severe limit to the speed, but the program is now multi-processed as well and doesnt suffer from this problem anymore.
+This powerful scanner leverages the capabilities of modern hardware by implementing a combination of multi-processing 
+and multi-threading, ensuring maximum utilization of available resources.
 
-I have set a default number of threads that I feel will work best for most computers.
-You can change that number with the -n switch. It is a good idea to scan a sample list
-(maybe 1k-5k hosts) and try some different options to see how it affects your speed and
-the number of servers found (this may change just from people shutting their servers down
-or booting them up). You can also change the number of processes (effectively cpu cores) with
-the -p switch (though the program uses all your cores by default). This can be nice if you
-want to do a more low profile scan or use less resources on your computer.
+### Multi-threading
+
+The program employs multiple threads to scan hosts concurrently, allowing for faster scanning without being limited by a
+single-threaded approach. However, it's essential to strike a balance between the number of threads and accuracy, as too
+many threads can lead to missed hosts or errors in the mcstatus module.
+
+### Multi-processing
+
+To further enhance performance, the scanner uses multiple processes, taking advantage of all available CPU cores. This 
+approach effectively eliminates the bottleneck caused by using only a single process, significantly boosting the 
+scanning speed.
+
+### Scanning Speeds and Optimization
+The default number of threads has been set to deliver optimal performance for most systems. However, you can fine-tune 
+the scanner by adjusting the number of threads with the -n switch or the number of processes with the -p switch. 
+Experimenting with different configurations on a sample list of 1k-5k hosts can help you find the most efficient setup 
+for your hardware.
 
 ## Usage
 
@@ -55,31 +63,15 @@ optional arguments:
   -pg, --postgres       Enable export of server list to PostgreSQL
 ```
 
-## Postgres
+## PostgreSQL Integration 
 
-The Postgres feature is still in testing but should be done relatively soon. It is available,
-however, nonetheless. It may contain bugs.
-
-To use it, add the -pg or --postgres switch and when the program is run it will prompt for
-database info.
-
-To avoid giving myself a major headache I automatically delete the table and create it for you
-every time the program is run. I could implement a system where it queries the database and checks
-to see if an IP already exists to avoid duplicates but then I would also have to check whether any
-information about that server has changed. I may add this in the future but for now it stays.
-
-The queries that I created are not configurable without changing the code. The reason for this
-is because there is a finite amount of information that these minecraft servers actually give so
-to create a whole system of configurable queries would be annoying and unnecessary.
-
-### Warning
-
-If you already have a table in your database called "minecraft" and you don't want it to be removed,
-then select a different table name when the program prompts for it.
+This scanner supports seamless integration with PostgreSQL, allowing you to export server lists directly to a database.
+IP addresses are the primary key of the database and every time the scanner finds a server which already exists in the
+database, it updates the record to reflect the new results. This means that you can run the scanner without worrying
+about having to shut your computer down because the scanner will continue collecting servers and adding them.
 
 #### To Do
 
 - Encryption on Postgres config file
 - Time formatting for scan time
 - Version argument
-- Organize and comment

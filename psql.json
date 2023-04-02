@@ -1,8 +1,8 @@
 {
-    "host": "192.168.56.128",
-    "database": "sonar",
-    "user": "sonar",
-    "password": "@111Sonar111@",
-    "table": "minecraft",
-    "sslmode": "disable"
+    "host": "redacted",
+    "database": "redacted",
+    "user": "redacted",
+    "password": "redacted",
+    "table": "redacted",
+    "sslmode": "redacted"
 }
